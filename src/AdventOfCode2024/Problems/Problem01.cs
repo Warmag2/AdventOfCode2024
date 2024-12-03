@@ -1,19 +1,16 @@
-﻿using AdventOfCode2024.Attributes;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using AdventOfCode2024.Attributes;
 
 namespace AdventOfCode2024.Problems;
 
 [ProblemIndex(Index = 1)]
-public class Problem_01 : IProblem
+public class Problem01 : ProblemBase
 {
-    readonly string Input;
-
-    public Problem_01(string input)
+    public Problem01(string input) : base(input)
     {
-        Input = input;
     }
 
-    public string Solve()
+    public override string Solve()
     {
         var left = new List<int>();
         var right = new List<int>();
@@ -26,8 +23,8 @@ public class Problem_01 : IProblem
             }
 
             var numbers = line.Split();
-            left.Add(int.Parse(numbers.First()));
-            right.Add(int.Parse(numbers.Last()));
+            left.Add(int.Parse(numbers[0]));
+            right.Add(int.Parse(numbers[^1]));
         }
 
         left.Sort();
@@ -42,8 +39,6 @@ public class Problem_01 : IProblem
         }
 
         // Part 2
-        var similarityScores = new List<int>();
-
         var similarityDict = new ConcurrentDictionary<int, int>();
 
         foreach (var item in right)
@@ -61,6 +56,6 @@ public class Problem_01 : IProblem
             }
         }
 
-        return $"Solution: {diff.Sum(x => x).ToString()}\nBonus solution: {similaritySum}";
+        return $"Solution: {diff.Sum(x => x)}\nBonus solution: {similaritySum}";
     }
 }

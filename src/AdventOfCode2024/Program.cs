@@ -1,6 +1,6 @@
-﻿using AdventOfCode2024.Attributes;
+﻿using System.Reflection;
+using AdventOfCode2024.Attributes;
 using CommandLine;
-using System.Reflection;
 using static AdventOfCode2024.Helpers.TypeHelpers;
 
 namespace AdventOfCode2024;

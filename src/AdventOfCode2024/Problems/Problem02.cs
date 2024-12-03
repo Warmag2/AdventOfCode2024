@@ -1,18 +1,16 @@
 ﻿using AdventOfCode2024.Attributes;
+using AdventOfCode2024.Extensions;
 
 namespace AdventOfCode2024.Problems;
 
 [ProblemIndex(Index = 2)]
-public class Problem_02 : IProblem
+public class Problem02 : ProblemBase
 {
-    readonly string Input;
-
-    public Problem_02(string input)
+    public Problem02(string input) : base(input)
     {
-        Input = input;
     }
 
-    public string Solve()
+    public override string Solve()
     {
         var reports = new List<List<int>>();
 
@@ -33,7 +31,7 @@ public class Problem_02 : IProblem
         foreach (var report in reports)
         {
             reportValidity.Add(CheckReport(report));
-            Console.WriteLine($"{string.Join(' ', report)}: {reportValidity.Last()}");
+            Console.WriteLine($"{string.Join(' ', report)}: {reportValidity[^1]}");
         }
 
         // Part 2
@@ -67,13 +65,13 @@ public class Problem_02 : IProblem
                 }
             }
 
-            Console.WriteLine($"{string.Join(' ', report)}: {reportValidity2.Last()}");
+            Console.WriteLine($"{string.Join(' ', report)}: {reportValidity2[^1]}");
         }
 
-        return $"Solution: {reportValidity.Sum(x => x == true ? 1 : 0)}\nBonus solution: {reportValidity2.Sum(x => x == true ? 1 : 0)}";
+        return $"Solution: {reportValidity.Sum(x => x ? 1 : 0)}\nBonus solution: {reportValidity2.Sum(x => x ? 1 : 0)}";
     }
 
-    private bool CheckReport(List<int> report)
+    private static bool CheckReport(List<int> report)
     {
         var directionVector = new List<int>();
 

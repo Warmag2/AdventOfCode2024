@@ -1,19 +1,16 @@
-﻿using AdventOfCode2024.Attributes;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using AdventOfCode2024.Attributes;
 
 namespace AdventOfCode2024.Problems;
 
 [ProblemIndex(Index = 3)]
-public class Problem_03 : IProblem
+public class Problem03 : ProblemBase
 {
-    readonly string Input;
-
-    public Problem_03(string input)
+    public Problem03(string input) : base(input)
     {
-        Input = input;
     }
 
-    public string Solve()
+    public override string Solve()
     {
         var totalSum = MulSum(Input);
 
@@ -52,7 +49,7 @@ public class Problem_03 : IProblem
         return $"Solution: {totalSum}\nBonus solution: {bonusSum}";
     }
 
-    private long MulSum(string input)
+    private static long MulSum(string input)
     {
         long totalSum = 0;
 

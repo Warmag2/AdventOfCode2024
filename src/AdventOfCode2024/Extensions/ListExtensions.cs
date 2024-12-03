@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode2024;
+﻿namespace AdventOfCode2024.Extensions;
 
 public static class ListExtensions
 {
@@ -6,7 +6,7 @@ public static class ListExtensions
     {
         var returnedList = new List<TType>();
         returnedList.AddRange(input);
-        
+
         return returnedList;
     }
 }
