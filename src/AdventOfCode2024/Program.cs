@@ -11,6 +11,9 @@ public class Program
     {
         [Option('p', "problem", Required = true, HelpText = "Problem number to process.")]
         public int Problem { get; set; }
+
+        [Option('o', "overrideinput", Required = false, HelpText = "Override default input data file name with the given string.")]
+        public string OverrideInputName { get; set; } = string.Empty;
     }
 
     static void Main(string[] args)
@@ -19,7 +22,19 @@ public class Program
         .WithParsed(o =>
         {
             Console.WriteLine($"Running problem {o.Problem}");
-            var inputData = File.ReadAllText($"problem_{o.Problem:D2}.txt");
+
+            string inputFileName;
+
+            if (!string.IsNullOrWhiteSpace(o.OverrideInputName))
+            {
+                inputFileName = o.OverrideInputName;
+            }
+            else
+            {
+                inputFileName = $"problem_{o.Problem:D2}.txt";
+            }
+
+            var inputData = File.ReadAllText(inputFileName);
 
             Console.WriteLine(GetProblem(o.Problem, inputData).Solve());
         });
