@@ -31,7 +31,7 @@ public class Problem02 : ProblemBase
         foreach (var report in reports)
         {
             reportValidity.Add(CheckReport(report));
-            Console.WriteLine($"{string.Join(' ', report)}: {reportValidity[^1]}");
+            //Console.WriteLine($"{string.Join(' ', report)}: {reportValidity[^1]}");
         }
 
         // Part 2
@@ -65,7 +65,7 @@ public class Problem02 : ProblemBase
                 }
             }
 
-            Console.WriteLine($"{string.Join(' ', report)}: {reportValidity2[^1]}");
+            //Console.WriteLine($"{string.Join(' ', report)}: {reportValidity2[^1]}");
         }
 
         return $"Solution: {reportValidity.Sum(x => x ? 1 : 0)}\nBonus solution: {reportValidity2.Sum(x => x ? 1 : 0)}";

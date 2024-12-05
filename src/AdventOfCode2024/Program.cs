@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using AdventOfCode2024.Attributes;
 using CommandLine;
 using static AdventOfCode2024.Helpers.TypeHelpers;
@@ -35,8 +36,14 @@ public class Program
             }
 
             var inputData = File.ReadAllText(inputFileName);
+            var problem = GetProblem(o.Problem, inputData);
 
-            Console.WriteLine(GetProblem(o.Problem, inputData).Solve());
+            var watch = Stopwatch.StartNew();
+            var result = problem.Solve();
+            var finishTime = watch.Elapsed;
+
+            Console.WriteLine(result);
+            Console.WriteLine($"Time: {finishTime.TotalMilliseconds}ms");
         });
     }
 

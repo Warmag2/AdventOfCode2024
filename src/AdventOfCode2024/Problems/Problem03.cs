@@ -58,7 +58,7 @@ public class Problem03 : ProblemBase
         foreach (var match in regex.Matches(input))
         {
             var mul = match.ToString();
-            Console.WriteLine(mul);
+            //Console.WriteLine(mul);
             var innerRegex = new Regex("[0-9]+");
 
             var integers = new List<int>();
