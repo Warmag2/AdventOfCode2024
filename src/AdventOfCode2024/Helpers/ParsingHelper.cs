@@ -2,6 +2,43 @@
 
 public static class ParsingHelper
 {
+    public static List<List<int>> ToIntLists(this List<string> input, char delimeter)
+    {
+        var returnValue = new List<List<int>>();
+
+        foreach (var item in input)
+        {
+            returnValue.Add(item.Split(delimeter).Where(s => !string.IsNullOrWhiteSpace(s)).Select(int.Parse).ToList());
+        }
+
+        return returnValue;
+    }
+
+    public static List<List<string>> ToStringLists(this string input)
+    {
+        var stringList = input.Split("\r\n");
+
+        var returnValue = new List<List<string>>();
+        returnValue.Add(new List<string>());
+
+        foreach (var item in stringList)
+        {
+            if (string.IsNullOrWhiteSpace(item))
+            {
+                if (returnValue.Count > 0)
+                {
+                    returnValue.Add(new List<string>());
+                }
+            }
+            else
+            {
+                returnValue[^1].Add(item);
+            }
+        }
+
+        return returnValue;
+    }
+
     public static char[][] ToArray2D(this string input, char[] delimeterSequence)
     {
         return input.ToArray().ToArray2D(delimeterSequence);
