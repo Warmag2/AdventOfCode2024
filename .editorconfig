@@ -87,6 +87,9 @@ dotnet_diagnostic.SA1413.severity = None
 # Usings do not need blank lines in-between
 dotnet_diagnostic.SA1516.severity = None
 
+# No need to always document everything for this project
+dotnet_diagnostic.SA1600.severity = None
+
 # Enumeration items do not need to be documented
 dotnet_diagnostic.SA1602.severity = None
 

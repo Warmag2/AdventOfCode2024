@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode2024.Extensions;
 
-public static class ListExtensions
+public static class CollectionExtensions
 {
     public static void Swap<TType>(this List<TType> input, int idx1, int idx2)
     {
@@ -15,5 +15,18 @@ public static class ListExtensions
         returnedList.AddRange(input);
 
         return returnedList;
+    }
+
+    public static void AddInstance<TKey, TValue>(this Dictionary<TKey, List<TValue>> dict, TKey category, TValue valueToAdd)
+        where TKey : struct
+    {
+        if (dict.TryGetValue(category, out var value))
+        {
+            value.Add(valueToAdd);
+        }
+        else
+        {
+            dict.Add(category, new List<TValue>() { valueToAdd });
+        }
     }
 }

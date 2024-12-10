@@ -4,9 +4,35 @@ namespace AdventOfCode2024.Entities;
 
 public struct Vertex2
 {
+    public Vertex2(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+
     public int X { get; set; }
 
     public int Y { get; set; }
+
+    public static Vertex2 operator +(Vertex2 a, Vertex2 b)
+    {
+        return new Vertex2(a.X + b.X, a.Y + b.Y);
+    }
+
+    public static Vertex2 operator -(Vertex2 a, Vertex2 b)
+    {
+        return new Vertex2(a.X - b.X, a.Y - b.Y);
+    }
+
+    public static Vertex2 operator *(Vertex2 a, int b)
+    {
+        return new Vertex2(a.X * b, a.Y * b);
+    }
+
+    public static Vertex2 operator /(Vertex2 a, int b)
+    {
+        return new Vertex2(a.X / b, a.Y / b);
+    }
 
     public static bool operator !=(Vertex2 a, Vertex2 b)
     {
@@ -18,9 +44,54 @@ public struct Vertex2
         return a.X == b.X && a.Y == b.Y;
     }
 
-    public static Vertex2 operator +(Vertex2 a, Vertex2 b)
+    public static Vertex2 DirectionVertex(Direction direction)
     {
-        return new Vertex2 { X = a.X + b.X, Y = a.Y + b.Y };
+        switch (direction)
+        {
+            case Direction.North:
+                return new Vertex2(0, -1);
+            case Direction.NorthEast:
+                return new Vertex2 (1, -1);
+            case Direction.East:
+                return new Vertex2 (1, 0);
+            case Direction.SouthEast:
+                return new Vertex2 (1, 1);
+            case Direction.South:
+                return new Vertex2 (0, 1);
+            case Direction.SouthWest:
+                return new Vertex2 (-1, 1);
+            case Direction.West:
+                return new Vertex2 (-1, 0);
+            case Direction.NorthWest:
+                return new Vertex2 (-1, -1);
+            default:
+                throw new NotImplementedException("Unknown direction.");
+        }
+    }
+
+    public static Vertex2 AntiDirectionVertex(Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.North:
+                return new Vertex2(0, 1);
+            case Direction.NorthEast:
+                return new Vertex2(-1, 1);
+            case Direction.East:
+                return new Vertex2(-1, 0);
+            case Direction.SouthEast:
+                return new Vertex2(-1, -1);
+            case Direction.South:
+                return new Vertex2(0, -1);
+            case Direction.SouthWest:
+                return new Vertex2(1, -1);
+            case Direction.West:
+                return new Vertex2(1, 0);
+            case Direction.NorthWest:
+                return new Vertex2(1, 1);
+            default:
+                throw new NotImplementedException("Unknown direction.");
+        }
     }
 
     public static Vertex2 LocationAt(Vertex2 vertex, Direction direction)
@@ -28,9 +99,23 @@ public struct Vertex2
         return vertex + vertex.Travel(direction);
     }
 
+    public Vertex2? NormalizeToDirection()
+    {
+        var lenMax = Math.Max(X, Y);
+
+        if (X % lenMax == 0 && Y % lenMax == 0)
+        {
+            return new Vertex2 { X = X / lenMax, Y = Y / lenMax };
+        }
+
+        return null;
+    }
+
     public Vertex2 Travel(Direction direction)
     {
-        switch (direction)
+        return this + DirectionVertex(direction);
+
+        /*switch (direction)
         {
             case Direction.North:
                 return new Vertex2 { X = X, Y = Y - 1 };
@@ -50,6 +135,26 @@ public struct Vertex2
                 return new Vertex2 { X = X - 1, Y = Y - 1 };
             default:
                 throw new NotImplementedException("Unknown direction.");
+        }*/
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj == null)
+        {
+            return false;
         }
+
+        if (obj is Vertex2 vertex)
+        {
+            return Equals(vertex);
+        }
+
+        return false;
+    }
+
+    public bool Equals(Vertex2 other)
+    {
+        return this == other;
     }
 }
