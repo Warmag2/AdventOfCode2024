@@ -29,4 +29,16 @@ public static class CollectionExtensions
             dict.Add(category, new List<TValue>() { valueToAdd });
         }
     }
+
+    public static void AddToCell(this Dictionary<long, long> dict, long cell, long amount)
+    {
+        if (dict.TryGetValue(cell, out var value))
+        {
+            dict[cell] = value + amount;
+        }
+        else
+        {
+            dict.Add(cell, amount);
+        }
+    }
 }

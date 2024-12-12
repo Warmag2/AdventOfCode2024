@@ -138,7 +138,8 @@ public struct Vertex2
         }*/
     }
 
-    public override bool Equals(object obj)
+    /// <inheritdoc />
+    public override readonly bool Equals(object? obj)
     {
         if (obj == null)
         {
@@ -153,8 +154,14 @@ public struct Vertex2
         return false;
     }
 
-    public bool Equals(Vertex2 other)
+    public readonly bool Equals(Vertex2 other)
     {
         return this == other;
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return X * 32768 + Y;
     }
 }

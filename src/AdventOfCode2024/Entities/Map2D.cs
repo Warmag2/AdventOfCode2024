@@ -34,15 +34,146 @@ public class Map2D<TType>
 
     public TType? Get(Vertex2 location)
     {
-        if (location.X >= 0 &&
-            location.X < _mapData.Length &&
-            location.Y >= 0 &&
-            location.Y < _mapData[location.X].Length)
+        if (location.Y >= 0 &&
+            location.Y < _mapData.Length &&
+            location.X >= 0 &&
+            location.X < _mapData[location.Y].Length)
         {
             return _mapData[location.Y][location.X];
         }
 
         return null;
+    }
+
+    public int GetBorderLength(List<Vertex2> area)
+    {
+        var sample = Get(area[0]);
+
+        if (!sample.HasValue)
+        {
+            throw new InvalidDataException("Trying to get border size of area which is not inside the map.");
+        }
+
+        var border = 0;
+
+        foreach (var vertex in area)
+        {
+            border += GetNeighborsNotOfType(vertex, [Direction.North, Direction.East, Direction.South, Direction.West], sample.Value).Count;
+        }
+
+        return border;
+    }
+
+    public List<Border2> GetBorders(List<Vertex2> area)
+    {
+        var sample = Get(area[0]);
+
+        if (!sample.HasValue)
+        {
+            throw new InvalidDataException("Trying to get border size of area which is not inside the map.");
+        }
+
+        var borderElements = new List<Border2>();
+
+        foreach (var vertex in area)
+        {
+            var adjacencies = GetNeighborsNotOfType(vertex, [Direction.North, Direction.East, Direction.South, Direction.West], sample.Value);
+
+            foreach (var adjacency in adjacencies)
+            {
+                borderElements.Add(new Border2(vertex, adjacency));
+            }
+        }
+
+        return borderElements;
+    }
+
+    public int GetBorderSides(List<Border2> border)
+    {
+        int sides = 0;
+
+        while (border.Count > 0)
+        {
+            var line = GetItemsOnTheSameLineAs(border, border[0]);
+
+            foreach (var lineElement in line)
+            {
+                border.Remove(lineElement);
+            }
+
+            sides++;
+        }
+
+        return sides;
+    }
+
+    private static List<Border2> GetItemsOnTheSameLineAs(List<Border2> borders, Border2 testItem)
+    {
+        var wholeLine = new List<Border2> { testItem };
+
+        var addedInLastIteration = new List<Border2> { testItem };
+        var addedInThisIteration = new List<Border2>();
+
+        while (true)
+        {
+            foreach (var item in addedInLastIteration)
+            {
+                foreach (var border in borders)
+                {
+                    if (border.IsAdjacentAndInLine(item))
+                    {
+                        addedInThisIteration.Add(border);
+                    }
+                }
+            }
+
+            addedInLastIteration = addedInThisIteration.Distinct().Where(b => !wholeLine.Contains(b)).ToList();
+
+            if (addedInLastIteration.Count == 0)
+            {
+                break;
+            }
+
+            wholeLine.AddRange(addedInLastIteration);
+        }
+
+        return wholeLine;
+    }
+
+    public List<Vertex2> GetContiguousArea(Vertex2 location)
+    {
+        var sample = Get(location);
+
+        if (sample == null)
+        {
+            throw new ArgumentOutOfRangeException(nameof(location), "Trying to get contiguous area outside of map");
+        }
+
+        var fillArea = new HashSet<Vertex2> { location };
+        var addedInLastIteration = new List<Vertex2> { location };
+        var addedInThisIteration = new List<Vertex2>();
+
+        while (true)
+        {
+            foreach (var iterationLocation in addedInLastIteration)
+            {
+                addedInThisIteration.AddRange(GetNeighborsOfType(iterationLocation, [Direction.North, Direction.East, Direction.South, Direction.West], sample.Value));
+            }
+
+            addedInLastIteration = addedInThisIteration.Distinct().Where(s => !fillArea.Contains(s)).ToList();
+
+            if (!addedInLastIteration.Any())
+            {
+                break;
+            }
+
+            foreach (var newVertex in addedInLastIteration)
+            {
+                fillArea.Add(newVertex);
+            }
+        }
+
+        return fillArea.ToList();
     }
 
     public List<Vertex2> GetInstancesOf(TType input)
@@ -79,6 +210,22 @@ public class Map2D<TType>
         }
 
         return result;
+    }
+
+    public Vertex2? FirstInstanceNotOf(TType input)
+    {
+        for (var ii = 0; ii < _mapData.Length; ii++)
+        {
+            for (var jj = 0; jj < _mapData[ii].Length; jj++)
+            {
+                if (_mapData[ii][jj].CompareTo(input) != 0)
+                {
+                    return new Vertex2 { X = jj, Y = ii };
+                }
+            }
+        }
+
+        return null;
     }
 
     public Vertex2? FirstInstanceOf(TType input)
@@ -171,6 +318,14 @@ public class Map2D<TType>
         return false;
     }
 
+    public void Set(IEnumerable<Vertex2> positions, TType input)
+    {
+        foreach (var pos in positions)
+        {
+            Set(pos, input);
+        }
+    }
+
     public void SetLine(Vertex2 initPos, Vertex2 step, TType input)
     {
         var next = initPos;
@@ -233,6 +388,24 @@ public class Map2D<TType>
             currentPath.Add(nextSteps[0]);
             WalkSequenceInternal(finalPaths, currentPath, sequence, sequenceIndex + 1);
         }
+    }
+
+    private List<Vertex2> GetNeighborsNotOfType(Vertex2 location, Direction[] directions, TType item)
+    {
+        var neighbors = new List<Vertex2>(directions.Length);
+
+        foreach (var direction in directions)
+        {
+            var test = location + Vertex2.DirectionVertex(direction);
+            var testValue = Get(test);
+
+            if (!testValue.HasValue || !testValue.Value.Equals(item))
+            {
+                neighbors.Add(test);
+            }
+        }
+
+        return neighbors;
     }
 
     private List<Vertex2> GetNeighborsOfType(Vertex2 location, Direction[] directions, TType item)
