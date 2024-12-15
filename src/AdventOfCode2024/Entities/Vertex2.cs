@@ -4,15 +4,15 @@ namespace AdventOfCode2024.Entities;
 
 public struct Vertex2
 {
-    public Vertex2(int x, int y)
+    public Vertex2(long x, long y)
     {
         X = x;
         Y = y;
     }
 
-    public int X { get; set; }
+    public long X { get; set; }
 
-    public int Y { get; set; }
+    public long Y { get; set; }
 
     public static Vertex2 operator +(Vertex2 a, Vertex2 b)
     {
@@ -24,12 +24,12 @@ public struct Vertex2
         return new Vertex2(a.X - b.X, a.Y - b.Y);
     }
 
-    public static Vertex2 operator *(Vertex2 a, int b)
+    public static Vertex2 operator *(Vertex2 a, long b)
     {
         return new Vertex2(a.X * b, a.Y * b);
     }
 
-    public static Vertex2 operator /(Vertex2 a, int b)
+    public static Vertex2 operator /(Vertex2 a, long b)
     {
         return new Vertex2(a.X / b, a.Y / b);
     }
@@ -162,6 +162,6 @@ public struct Vertex2
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return X * 32768 + Y;
+        return (int)(X * 32768 + Y);
     }
 }

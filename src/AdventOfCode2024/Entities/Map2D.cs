@@ -32,6 +32,17 @@ public class Map2D<TType>
 
     public int SizeY => _mapData.Length;
 
+    public IEnumerable<Vertex2> AllPositions()
+    {
+        for (var ii = 0; ii < _mapData.Length; ii++)
+        {
+            for (var jj = 0; jj < _mapData[ii].Length; jj++)
+            {
+                yield return new Vertex2(jj, ii);
+            }
+        }
+    }
+
     public TType? Get(Vertex2 location)
     {
         if (location.Y >= 0 &&
@@ -282,7 +293,7 @@ public class Map2D<TType>
 
             if (normalizedDir == Vertex2.DirectionVertex(direction))
             {
-                return (direction, Math.Max(Math.Abs(diff.X), Math.Abs(diff.Y)));
+                return (direction, (int)Math.Max(Math.Abs(diff.X), Math.Abs(diff.Y)));
             }
         }
 
@@ -390,7 +401,7 @@ public class Map2D<TType>
         }
     }
 
-    private List<Vertex2> GetNeighborsNotOfType(Vertex2 location, Direction[] directions, TType item)
+    public List<Vertex2> GetNeighborsNotOfType(Vertex2 location, Direction[] directions, TType item)
     {
         var neighbors = new List<Vertex2>(directions.Length);
 
@@ -408,7 +419,7 @@ public class Map2D<TType>
         return neighbors;
     }
 
-    private List<Vertex2> GetNeighborsOfType(Vertex2 location, Direction[] directions, TType item)
+    public List<Vertex2> GetNeighborsOfType(Vertex2 location, Direction[] directions, TType item)
     {
         var neighbors = new List<Vertex2>(directions.Length);
 
@@ -424,5 +435,24 @@ public class Map2D<TType>
         }
 
         return neighbors;
+    }
+
+    public void Reset(TType input)
+    {
+        foreach (var line in _mapData)
+        {
+            for (var ii = 0; ii < line.Length; ii++)
+            {
+                line[ii] = input;
+            }
+        }
+    }
+
+    public IEnumerable<TType[]> Lines()
+    {
+        foreach (var line in _mapData)
+        {
+            yield return line;
+        }
     }
 }

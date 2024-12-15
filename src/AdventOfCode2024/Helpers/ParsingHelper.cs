@@ -39,6 +39,11 @@ public static class ParsingHelper
         return returnValue;
     }
 
+    public static char[][] ToArray2D(this IEnumerable<string> input)
+    {
+        return input.Select(i => i.ToArray()).ToArray();
+    }
+
     public static char[][] ToArray2D(this string input, char[] delimeterSequence)
     {
         return input.ToArray().ToArray2D(delimeterSequence);
