@@ -32,6 +32,8 @@ public class Map2D<TType>
 
     public int SizeY => _mapData.Length;
 
+    public TType[][] MapData => _mapData;
+
     public IEnumerable<Vertex2> AllPositions()
     {
         for (var ii = 0; ii < _mapData.Length; ii++)
