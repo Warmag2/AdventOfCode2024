@@ -33,7 +33,8 @@ public class Maze
         _costData.Set(_playerPos, 0);
         List<Crawler> crawlers = [new Crawler(_playerPos, Direction.East, Guid.NewGuid(), 0)];
         Dictionary<Guid, List<Vertex2>> paths = new() { { crawlers[0].Id, new List<Vertex2>() { crawlers[0].Position } } };
-        List<(long Cost, List<Vertex2> finalPath)> finalPaths = new();
+        SortedList<long, List<List<Vertex2>>> finalPaths = new();
+        long minimumFinalCost = long.MaxValue;
 
         while (true)
         {
@@ -42,11 +43,11 @@ public class Maze
             foreach (var crawler in crawlers)
             {
                 var id = crawler.Id;
-                var currentPath = paths[id].ShallowClone();
+                var pathToClone = paths[id];
 
-                var nextCrawlers = GenerateNextCrawlers(crawler).Where(c => _map.Get(c.Position) != Impassable).ToList();
+                var nextCrawlers = GenerateNextCrawlers(crawler); //.Where(c => _map.Get(c.Position) != Impassable).ToList();
 
-                // Discard crawlers which end up in a wall
+                // Discard crawlers which hit a wall
                 if (!nextCrawlers.Any(c => c.Id == id))
                 {
                     paths.Remove(id);
@@ -56,20 +57,33 @@ public class Maze
                 {
                     if (paths.TryGetValue(nextCrawler.Id, out var value))
                     {
+                        // Optimization, avoid cloning path unless we really need to
+                        if (nextCrawlers.Count > 1)
+                        {
+                            pathToClone = pathToClone.ShallowClone();
+                        }
+
                         value.Add(nextCrawler.Position);
                     }
                     else
                     {
-                        var newPath = currentPath.ShallowClone();
-                        newPath.Add(nextCrawler.Position);
-                        paths.Add(nextCrawler.Id, newPath);
+                        // Optimization, avoid cloning path unless we really need to
+                        if (nextCrawlers.Count > 1)
+                        {
+                            var newPath = pathToClone.ShallowClone();
+                            newPath.Add(nextCrawler.Position);
+                            paths.Add(nextCrawler.Id, newPath);
+                        }
+                        else
+                        {
+                            pathToClone.Add(nextCrawler.Position);
+                            paths.Add(nextCrawler.Id, pathToClone);
+                        }
                     }
 
                     potentialCrawlersNextIteration.Add(nextCrawler);
                 }
             }
-
-            //crawlers.Select(GenerateNextCrawlers).SelectMany(n => n).Where(c => _map.Get(c.Position) != Impassable).ToList();
 
             foreach (var crawler in potentialCrawlersNextIteration)
             {
@@ -84,7 +98,8 @@ public class Maze
             foreach (var crawler in potentialCrawlersNextIteration)
             {
                 // Discard crawlers which cannot recover anymore, i.e. they are in the same place as another crawler, but with higher cost than it would take to turn
-                if (_costData.Get(crawler.Position) < crawler.Cost - _turningCost)
+                if (crawler.Cost > minimumFinalCost ||
+                    _costData.Get(crawler.Position) < crawler.Cost - _turningCost)
                 {
                     paths.Remove(crawler.Id);
                     continue;
@@ -99,7 +114,12 @@ public class Maze
 
                 if (crawler.Position == _exitPos)
                 {
-                    finalPaths.Add((crawler.Cost, paths[crawler.Id]));
+                    if (crawler.Cost <= minimumFinalCost)
+                    {
+                        finalPaths.AddInstance(crawler.Cost, paths[crawler.Id]);
+                        minimumFinalCost = crawler.Cost;
+                    }
+
                     paths.Remove(crawler.Id);
                 }
                 else
@@ -108,7 +128,7 @@ public class Maze
                 }
             }
 
-            Console.WriteLine($"Crawlers: {crawlers.Count} FinalPaths: {finalPaths.Count}");
+            Console.WriteLine($"Crawlers: {crawlers.Count} MinimumPaths: {finalPaths.FirstOrDefault().Value?.Count ?? 0}" + (minimumFinalCost != long.MaxValue ? $" Cost: {minimumFinalCost}" : string.Empty));
 
             if (crawlers.Count == 0)
             {
@@ -116,7 +136,7 @@ public class Maze
             }
         }
 
-        return finalPaths.Where(f => f.Cost == finalPaths.Min(p => p.Cost)).Select(a => a.finalPath).ToList();
+        return finalPaths.First().Value;
     }
 
     public long GetCost()
@@ -128,12 +148,34 @@ public class Maze
     {
         var left = input.Facing.Left();
         var right = input.Facing.Right();
+        var forwardPos = input.Position + Vertex2.DirectionVertex(input.Facing);
+        var leftPos = input.Position + Vertex2.DirectionVertex(left);
+        var rightPos = input.Position + Vertex2.DirectionVertex(right);
 
-        return new List<Crawler>
+        var crawlers = new List<Crawler>(3);
+
+        if (_map.Get(forwardPos) != Impassable)
         {
-            new Crawler(input.Position + Vertex2.DirectionVertex(input.Facing), input.Facing, input.Id, input.Cost + _forwardCost),
-            new Crawler(input.Position + Vertex2.DirectionVertex(left), left, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost),
-            new Crawler(input.Position + Vertex2.DirectionVertex(right), right, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost)
-        };
+            crawlers.Add(new Crawler(forwardPos, input.Facing, input.Id, input.Cost + _forwardCost));
+        }
+
+        if (_map.Get(leftPos) != Impassable)
+        {
+            crawlers.Add(new Crawler(input.Position + Vertex2.DirectionVertex(left), left, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost));
+        }
+
+        if (_map.Get(rightPos) != Impassable)
+        {
+            crawlers.Add(new(input.Position + Vertex2.DirectionVertex(right), right, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost));
+        }
+
+        return crawlers;
+
+        /*return
+        [
+            new(input.Position + Vertex2.DirectionVertex(input.Facing), input.Facing, input.Id, input.Cost + _forwardCost),
+            new(input.Position + Vertex2.DirectionVertex(left), left, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost),
+            new(input.Position + Vertex2.DirectionVertex(right), right, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost)
+        ];*/
     }
 }

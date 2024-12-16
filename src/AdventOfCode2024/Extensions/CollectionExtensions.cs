@@ -11,7 +11,7 @@ public static class CollectionExtensions
 
     public static List<TType> ShallowClone<TType>(this List<TType> input)
     {
-        var returnedList = new List<TType>();
+        var returnedList = new List<TType>(input.Count);
         returnedList.AddRange(input);
 
         return returnedList;
@@ -19,6 +19,19 @@ public static class CollectionExtensions
 
     public static void AddInstance<TKey, TValue>(this Dictionary<TKey, List<TValue>> dict, TKey category, TValue valueToAdd)
         where TKey : struct
+    {
+        if (dict.TryGetValue(category, out var value))
+        {
+            value.Add(valueToAdd);
+        }
+        else
+        {
+            dict.Add(category, new List<TValue>() { valueToAdd });
+        }
+    }
+
+    public static void AddInstance<TKey, TValue>(this SortedList<TKey, List<TValue>> dict, TKey category, TValue valueToAdd)
+    where TKey : struct
     {
         if (dict.TryGetValue(category, out var value))
         {
