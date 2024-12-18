@@ -1,7 +1,8 @@
-﻿using AdventOfCode2024.Enums;
+﻿using AdventOfCode2024.Entities;
+using AdventOfCode2024.Enums;
 using static AdventOfCode2024.Extensions.CollectionExtensions;
 
-namespace AdventOfCode2024.Entities;
+namespace AdventOfCode2024.Logic;
 
 public class Map2D<TType>
     where TType : struct, IComparable<TType>, IEquatable<TType>
@@ -12,7 +13,7 @@ public class Map2D<TType>
     {
         _mapData = new TType[sizeY][];
 
-        for (int ii = 0; ii < _mapData.Length; ii++)
+        for (var ii = 0; ii < _mapData.Length; ii++)
         {
             _mapData[ii] = new TType[sizeX];
 
@@ -103,7 +104,7 @@ public class Map2D<TType>
 
     public int GetBorderSides(List<Border2> border)
     {
-        int sides = 0;
+        var sides = 0;
 
         while (border.Count > 0)
         {
@@ -259,7 +260,7 @@ public class Map2D<TType>
 
     public bool HasSequence(Vertex2 location, Direction direction, TType[] sequence)
     {
-        int cursor = 0;
+        var cursor = 0;
 
         do
         {
@@ -456,5 +457,20 @@ public class Map2D<TType>
         {
             yield return line;
         }
+    }
+
+    public Map2D<TType> Clone()
+    {
+        var newMap = new Map2D<TType>(SizeX, SizeY);
+
+        for (var ii = 0; ii < _mapData.Length; ii++)
+        {
+            for (var jj = 0; jj < _mapData[ii].Length; jj++)
+            {
+                newMap.Set(new Vertex2(jj, ii), Get(new Vertex2(jj, ii))!.Value);
+            }
+        }
+
+        return newMap;
     }
 }

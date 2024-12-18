@@ -2,6 +2,7 @@
 using AdventOfCode2024.Entities;
 using AdventOfCode2024.Extensions;
 using AdventOfCode2024.Helpers;
+using AdventOfCode2024.Logic;
 
 namespace AdventOfCode2024.Problems;
 

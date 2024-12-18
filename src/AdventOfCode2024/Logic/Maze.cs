@@ -1,7 +1,8 @@
-﻿using AdventOfCode2024.Enums;
+﻿using AdventOfCode2024.Entities;
+using AdventOfCode2024.Enums;
 using AdventOfCode2024.Extensions;
 
-namespace AdventOfCode2024.Entities;
+namespace AdventOfCode2024.Logic;
 
 public class Maze
 {
@@ -23,18 +24,18 @@ public class Maze
         _forwardCost = forwardCost;
         _turningCost = turningCost;
         _costData = new Map2D<long>(map.SizeX, map.SizeY);
-        _costData.Reset(long.MaxValue);
+        Reset();
         _playerPos = map.FirstInstanceOf(Player) ?? throw new InvalidDataException("No player found.");
         _exitPos = map.FirstInstanceOf(Exit) ?? throw new InvalidDataException("No exit found.");
     }
 
-    public List<List<Vertex2>> Crawl()
+    public List<List<Vertex2>> Crawl(bool pathMatters = true)
     {
         _costData.Set(_playerPos, 0);
         List<Crawler> crawlers = [new Crawler(_playerPos, Direction.East, Guid.NewGuid(), 0)];
         Dictionary<Guid, List<Vertex2>> paths = new() { { crawlers[0].Id, new List<Vertex2>() { crawlers[0].Position } } };
         SortedList<long, List<List<Vertex2>>> finalPaths = new();
-        long minimumFinalCost = long.MaxValue;
+        var minimumFinalCost = long.MaxValue;
 
         while (true)
         {
@@ -45,7 +46,7 @@ public class Maze
                 var id = crawler.Id;
                 var pathToClone = paths[id];
 
-                var nextCrawlers = GenerateNextCrawlers(crawler); //.Where(c => _map.Get(c.Position) != Impassable).ToList();
+                var nextCrawlers = GenerateNextCrawlers(crawler);
 
                 // Discard crawlers which hit a wall
                 if (!nextCrawlers.Any(c => c.Id == id))
@@ -128,6 +129,12 @@ public class Maze
                 }
             }
 
+            // Discard identical crawlers if a specific path does not matter
+            if (!pathMatters)
+            {
+                crawlers = crawlers.Distinct().ToList();
+            }
+
             Console.WriteLine($"Crawlers: {crawlers.Count} MinimumPaths: {finalPaths.FirstOrDefault().Value?.Count ?? 0}" + (minimumFinalCost != long.MaxValue ? $" Cost: {minimumFinalCost}" : string.Empty));
 
             if (crawlers.Count == 0)
@@ -136,12 +143,17 @@ public class Maze
             }
         }
 
-        return finalPaths.First().Value;
+        return finalPaths.FirstOrDefault().Value ?? new();
     }
 
     public long GetCost()
     {
         return _costData.Get(_exitPos)!.Value;
+    }
+
+    public void Reset()
+    {
+        _costData.Reset(long.MaxValue);
     }
 
     private List<Crawler> GenerateNextCrawlers(Crawler input)
@@ -151,31 +163,27 @@ public class Maze
         var forwardPos = input.Position + Vertex2.DirectionVertex(input.Facing);
         var leftPos = input.Position + Vertex2.DirectionVertex(left);
         var rightPos = input.Position + Vertex2.DirectionVertex(right);
+        var forwardValue = _map.Get(forwardPos);
+        var leftValue = _map.Get(leftPos);
+        var rightValue = _map.Get(rightPos);
 
         var crawlers = new List<Crawler>(3);
 
-        if (_map.Get(forwardPos) != Impassable)
+        if (forwardValue.HasValue && forwardValue != Impassable)
         {
             crawlers.Add(new Crawler(forwardPos, input.Facing, input.Id, input.Cost + _forwardCost));
         }
 
-        if (_map.Get(leftPos) != Impassable)
+        if (leftValue.HasValue && leftValue != Impassable)
         {
             crawlers.Add(new Crawler(input.Position + Vertex2.DirectionVertex(left), left, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost));
         }
 
-        if (_map.Get(rightPos) != Impassable)
+        if (rightValue.HasValue && rightValue != Impassable)
         {
             crawlers.Add(new(input.Position + Vertex2.DirectionVertex(right), right, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost));
         }
 
         return crawlers;
-
-        /*return
-        [
-            new(input.Position + Vertex2.DirectionVertex(input.Facing), input.Facing, input.Id, input.Cost + _forwardCost),
-            new(input.Position + Vertex2.DirectionVertex(left), left, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost),
-            new(input.Position + Vertex2.DirectionVertex(right), right, Guid.NewGuid(), input.Cost + _forwardCost + _turningCost)
-        ];*/
     }
 }

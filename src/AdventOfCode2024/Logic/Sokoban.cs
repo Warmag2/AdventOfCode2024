@@ -1,6 +1,7 @@
-﻿using AdventOfCode2024.Enums;
+﻿using AdventOfCode2024.Entities;
+using AdventOfCode2024.Enums;
 
-namespace AdventOfCode2024.Entities;
+namespace AdventOfCode2024.Logic;
 
 public class Sokoban
 {

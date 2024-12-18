@@ -1,6 +1,7 @@
-﻿using AdventOfCode2024.Enums;
+﻿using AdventOfCode2024.Entities;
+using AdventOfCode2024.Enums;
 
-namespace AdventOfCode2024.Entities;
+namespace AdventOfCode2024.Logic;
 
 public class SokobanLarge
 {
@@ -144,7 +145,7 @@ public class SokobanLarge
     {
         var nextPosition = position + Vertex2.DirectionVertex(direction);
 
-        Vertex2[] rockPosition = GetRockPosition(nextPosition);
+        var rockPosition = GetRockPosition(nextPosition);
 
         if (rockPosition.Length > 0 && !rockList.Any(r => r[0] == rockPosition[0]))
         {
@@ -186,7 +187,7 @@ public class SokobanLarge
         var position = _playerPos + Vertex2.DirectionVertex(direction);
         var square = Map.Get(position) ?? throw new InvalidDataException("Invalid data, map cannot find square next to player.");
 
-        Vertex2[] rockPosition = GetRockPosition(position);
+        var rockPosition = GetRockPosition(position);
 
         return !BlockedInner(rockPosition, direction);
     }

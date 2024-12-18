@@ -1,6 +1,6 @@
 ﻿using AdventOfCode2024.Attributes;
-using AdventOfCode2024.Entities;
 using AdventOfCode2024.Helpers;
+using AdventOfCode2024.Logic;
 
 namespace AdventOfCode2024.Problems;
 
