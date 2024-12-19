@@ -17,6 +17,18 @@ public static class CollectionExtensions
         return returnedList;
     }
 
+    public static TType[] ShallowClone<TType>(this TType[] input)
+    {
+        var returnedArray = new TType[input.Length];
+
+        for (int ii = 0; ii<input.Length; ii++)
+        {
+            returnedArray[ii] = input[ii];
+        }
+
+        return returnedArray;
+    }
+
     public static void AddInstance<TKey, TValue>(this Dictionary<TKey, List<TValue>> dict, TKey category, TValue valueToAdd)
         where TKey : struct
     {
